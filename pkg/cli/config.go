@@ -43,7 +43,7 @@ type RelayConfig struct {
 //     A function that validates the parsed flags, logs any fatal errors,
 //     and returns a populated RelayConfig instance.
 func RegisterRelayFlags(fs *flag.FlagSet) func(logger *zap.Logger) *RelayConfig {
-	relayAddress := fs.String("relay-address", "localhost:50051", "TCP address where the relay will listen for gRPC traffic")
+	relayAddress := fs.String("relay-address", "", "TCP address where the relay will listen for gRPC traffic")
 	version := fs.Bool("version", false, "Print the current version and exit")
 
 	return func(logger *zap.Logger) *RelayConfig {
