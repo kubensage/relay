@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package metrics;
+
+option go_package = "/proto/gen";
+
+import "google/protobuf/empty.proto";
+import "proto/node_metrics.proto";
+import "proto/pod_metrics.proto";
+
+// Metrics is the root message that encapsulates all collected metrics from a node.
+// It includes both node-level metrics (hardware, OS, pressure stats, etc.)
+// and pod-level metrics (for all pods and containers running on the node).
+message Metrics {
+  // Timestamp related to the start of metrics collection (Unix timestamp)
+  int64 timestamp = 1;
+
+  // System-level metrics for the current node.
+  NodeMetrics node_metrics = 2;
+
+  // Runtime metrics for all pods and their containers scheduled on this node.
+  repeated PodMetrics pod_metrics = 3;
+}
+
+// MetricsService defines the bi-directional gRPC interface used to send and receive metrics
+// between the agent and the relay or between the relay and external consumers.
+service MetricsService {
+  // Receives a continuous stream of Metrics messages from agents.
+  // The agent opens a stream and sends data periodically (e.g., every 5s).
+  rpc SendMetrics(stream Metrics) returns (google.protobuf.Empty);
+
+  // Allows a client (e.g., exporter or dashboard) to subscribe to a live stream of metrics.
+  // The relay pushes each incoming Metrics message to all subscribers.
+  rpc SubscribeMetrics(google.protobuf.Empty) returns (stream Metrics);
+}
+
